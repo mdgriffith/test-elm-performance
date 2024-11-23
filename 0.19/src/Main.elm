@@ -9,6 +9,7 @@ import Element.Border as Border
 import Element.Events as Element
 import Element.Font as Font
 import Element.Region as Region
+import ElmUi3 as Ui3
 import Html exposing (Html)
 import Html.Attributes as Html
 import Html.Events as Html
@@ -18,6 +19,10 @@ import Html.Styled as Styled
 import Html.Styled.Attributes as StyledAttrs
 import Html.Styled.Events as StyledEvents
 import Time
+import Ui
+import Ui.Accessibility
+import Ui.Events
+import Ui.Font
 
 
 type alias State =
@@ -53,6 +58,8 @@ type Impl
     = Impl_HtmlCss
     | Impl_HtmlInline
     | Impl_ElmUI
+    | Impl_ElmUI2
+    | Impl_ElmUI3
     | Impl_ElmCss
 
 
@@ -199,6 +206,8 @@ heading _ =
             [ Html.button [ Html.onClick (SetImpl Impl_HtmlCss) ] [ Html.text "HTML / CSS" ]
             , Html.button [ Html.onClick (SetImpl Impl_HtmlInline) ] [ Html.text "HTML Inline" ]
             , Html.button [ Html.onClick (SetImpl Impl_ElmUI) ] [ Html.text "elm-ui" ]
+            , Html.button [ Html.onClick (SetImpl Impl_ElmUI2) ] [ Html.text "elm-ui 2" ]
+            , Html.button [ Html.onClick (SetImpl Impl_ElmUI3) ] [ Html.text "elm-ui 3.2" ]
             , Html.button [ Html.onClick (SetImpl Impl_ElmCss) ] [ Html.text "elm-css" ]
             ]
         , Html.p [] [ Html.text "Repeat the accordion this many times:" ]
@@ -256,6 +265,12 @@ implLabel impl =
         Impl_ElmUI ->
             "elm-ui (1.0.0)"
 
+        Impl_ElmUI2 ->
+            "elm-ui (2.0.0)"
+
+        Impl_ElmUI3 ->
+            "elm-ui (3.0.1)"
+
         Impl_ElmCss ->
             "elm-css (15.1.0)"
 
@@ -283,6 +298,21 @@ renderAccordions state =
                 |> Element.column [ Element.padding 32, Element.spacing 16, Element.width Element.fill ]
                 |> Element.layout []
                 |> Tuple.pair "style-elements"
+
+        Impl_ElmUI2 ->
+            state.actions
+                |> List.map (\( idx, openMsg ) -> accordionElmUI2 openMsg (Just idx == state.open) accordion)
+                |> Ui.column [ Ui.padding 32, Ui.spacing 16, Ui.width Ui.fill ]
+                |> Ui.layout []
+                |> Tuple.pair "elm-ui-2"
+
+        Impl_ElmUI3 ->
+            state.actions
+                |> List.map (\( idx, openMsg ) -> accordionElmUI3 openMsg (Just idx == state.open) accordion)
+                -- |> Ui2.column [ Ui.padding 32, Ui.spacing 16, Ui.width Ui.fill ]
+                |> Ui3.column []
+                |> Ui3.layout []
+                |> Tuple.pair "elm-ui-3"
 
         Impl_ElmCss ->
             state.actions
@@ -374,7 +404,7 @@ accordionHtmlInline : msg -> Bool -> Accordion -> Html msg
 accordionHtmlInline openMsg isOpen acc =
     Html.div
         []
-        [ Html.h4
+        [ Html.button
             [ Html.onClick openMsg
             , Html.style "margin" "0"
             , Html.style "cursor" "pointer"
@@ -461,6 +491,64 @@ accordionElmUI openMsg isOpen acc =
 
 
 
+-- elm-ui-2
+
+
+openAttributes2 : List (Ui.Attribute msg)
+openAttributes2 =
+    [ Ui.width Ui.fill
+    , Ui.Font.family [ Ui.Font.typeface "Arial", Ui.Font.sansSerif ]
+    , Ui.Font.size 16
+    , Ui.Font.color (Ui.rgb 0x00 0x00 0x00)
+    ]
+
+
+columnAttributes2 : List (Ui.Attribute msg)
+columnAttributes2 =
+    [ Ui.width Ui.fill
+    , Ui.spacing 12
+    ]
+
+
+attributes2 : List (Ui.Attribute msg)
+attributes2 =
+    [ Ui.pointer
+    , Ui.padding 8
+    , Ui.Font.size 20
+    , Ui.background (Ui.rgb 0xEE 0xEE 0xEE)
+    , Ui.Font.color (Ui.rgb 0x00 0x00 0x00)
+    , Ui.Font.family [ Ui.Font.typeface "Arial", Ui.Font.sansSerif ]
+    , Ui.width Ui.fill
+    , Ui.border 1
+    , Ui.borderColor (Ui.rgb 0xAA 0xAA 0xAA)
+
+    -- { color = Ui.rgb 0xAA 0xAA 0xAA
+    -- , width = 1
+    -- }
+    -- , Ui.Accessibility.heading 4
+    ]
+
+
+accordionElmUI2 : msg -> Bool -> Accordion -> Ui.Element msg
+accordionElmUI2 openMsg isOpen acc =
+    Ui.column columnAttributes2
+        [ Ui.paragraph
+            (Ui.Events.onClick openMsg :: attributes2)
+            -- attributes2
+            [ Ui.text acc.heading
+            ]
+        , if isOpen then
+            Ui.paragraph
+                openAttributes2
+                [ Ui.text acc.content
+                ]
+
+          else
+            Ui.none
+        ]
+
+
+
 -- elm-css
 
 
@@ -499,4 +587,60 @@ accordionElmCss openMsg isOpen acc =
             ]
             [ Styled.text acc.content
             ]
+        ]
+
+
+
+{- ELM UI 3 -}
+
+
+openAttributes3 : List (Ui3.Attr msg)
+openAttributes3 =
+    [--      Ui.width Ui.fill
+     -- , Ui.Font.family [ Ui.Font.typeface "Arial", Ui.Font.sansSerif ]
+     -- , Ui.Font.size 16
+     -- , Ui.Font.color (Ui.rgb 0x00 0x00 0x00)
+    ]
+
+
+columnAttributes3 : List (Ui3.Attr msg)
+columnAttributes3 =
+    [--     Ui.width Ui.fill
+     -- , Ui.spacing 12
+    ]
+
+
+attributes3 : List (Ui3.Attr msg)
+attributes3 =
+    [--      Ui.pointer
+     -- , Ui.padding 8
+     -- , Ui.Font.size 20
+     -- , Ui.background (Ui.rgb 0xEE 0xEE 0xEE)
+     -- , Ui.Font.color (Ui.rgb 0x00 0x00 0x00)
+     -- , Ui.Font.family [ Ui.Font.typeface "Arial", Ui.Font.sansSerif ]
+     -- , Ui.width Ui.fill
+     -- , Ui.border
+     --     { color = Ui.rgb 0xAA 0xAA 0xAA
+     --     , width = 1
+     --     }
+     -- , Ui.Accessibility.heading 4
+    ]
+
+
+accordionElmUI3 : msg -> Bool -> Accordion -> Ui3.Element msg
+accordionElmUI3 openMsg isOpen acc =
+    Ui3.column columnAttributes3
+        [ Ui3.row
+            -- (Ui3.Events.onClick openMsg :: attributes3)
+            attributes3
+            [ Ui3.text acc.heading
+            ]
+        , if isOpen then
+            Ui3.row
+                openAttributes3
+                [ Ui3.text acc.content
+                ]
+
+          else
+            Ui3.none
         ]
